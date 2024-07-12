@@ -1,0 +1,103 @@
+.text
+_start:
+.code64
+/* disable paging */
+movq %cr0, %rax
+andq $0xfffffffffffffffe, %rax
+movq %rax, %cr0
+
+/* Set the PAE enable bit in CR4 */
+movq %cr4, %rax
+orq $0x0000000000000020, %rax
+movq %rax, %cr4
+
+/* Init PML4 table 0xffff 8000 0000 0000  0xffff ffff 8000 0000  0xffff ffff 8100 0000*/
+/* Linear-Address Translation to a 2-MByte Page using IA-32e Paging */
+/* 0x0000 0000 0000 0000 */
+movq $(pdpt0 - 0xffffffff81000000 + 0x003), (pml4 - 0xffffffff81000000 + 0 * 8) //pml4
+movq $(pde0 - 0xffffffff81000000 + 0x003), (pdpt0 - 0xffffffff81000000 + 0 * 8) //pdpt0
+movq $(0 + 0x083), (pde0 - 0xffffffff81000000 + 0 * 8 )  //pde0
+movq $(0x200000 + 0x083), (pde0 - 0xffffffff81000000 + 1 * 8 )  //pde0
+
+/* 0xffff ffff 8100 0000 */
+movq $(pdpt1 - 0xffffffff81000000 + 0x003), (pml4 - 0xffffffff81000000 + 511 * 8) //pml4
+movq $(pde1 - 0xffffffff81000000 + 0x003), (pdpt1 - 0xffffffff81000000 + 510 * 8) //pdpt0
+movq $(0 + 0x083), (pde1 - 0xffffffff81000000 + 8 * 8 )  //pde1
+movq $(0x200000 + 0x083), (pde1 - 0xffffffff81000000 + 9 * 8 )  //pde1
+
+/* Load CR3 with the physical address of the PML4 (Level 4 Page Map) */
+movq $(pml4 - 0xffffffff81000000), %rax
+movq %rax, %cr3
+
+/* Enable long mode by setting the LME flag (bit 8) in MSR 0xC0000080 (aka EFER) */
+movl $0xC0000080, %ecx
+rdmsr
+orl $0x00000100, %eax
+wrmsr
+
+/* Enable paging */
+movq %cr0, %rax
+orq $0x0000000000000001, %rax
+movq %rax, %cr0
+
+/* Load GDT */
+movl $gdt_desc - 0xffffffff81000000, %eax
+lgdt  (%eax)
+
+/* Enter long mode */
+        jmp 1f
+1:
+        leaq 1f, %rax
+        jmp *%rax
+1:
+
+
+/*FIXME: setting up stack :64 bit*/
+movq  $stacktop, %rsp 
+callq	kernmain	
+
+/* fail */
+loop:
+	jmp loop
+
+.section .data, "aw"
+.data
+.globl gdt64
+gdt64:
+	/* null */
+  	.word 0, 0
+	.word 0, 0
+	
+	/* code */ 
+	.word 0xFFFF, 0x0000
+	.byte 0x00,0x9a, 0xbf, 0x00
+
+	/* data */ 
+	.word 0xFFFF, 0x0000
+        .byte 0x00,0x92, 0xbf, 0x0	
+
+.align 16
+.globl gdt_desc
+gdt_desc:
+	.word 0x17
+	.long gdt64
+
+kernstack:
+	.fill 512, 8, 0
+stacktop:
+
+pml4:
+    .fill 512, 8, 0
+
+pdpt0:
+    .fill 512, 8, 0
+
+pdpt1:
+    .fill 512, 8, 0	
+
+pde0:
+    .fill 512, 8, 0
+
+pde1:
+    .fill 512, 8, 0
+

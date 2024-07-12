@@ -1,0 +1,39 @@
+6828 decimal is XXX octal!
+
+e820 MEMORY MAP
+size: 20, address: 0x0000000000000000, length: 0x000000000009f000, type: 1
+size: 20, address: 0x000000000009f000, length: 0x0000000000001000, type: 2
+size: 20, address: 0x00000000000e8000, length: 0x0000000000018000, type: 2
+size: 20, address: 0x0000000000100000, length: 0x0000000007ef0000, type: 1
+size: 20, address: 0x0000000007ff0000, length: 0x0000000000010000, type: 3
+size: 20, address: 0x00000000fffc0000, length: 0x0000000000040000, type: 2
+
+================================i386_detect_memory==============
+Physical memory: 128M available, base = 636K, extended = 130048K, npages = 32768
+Pages limited to 3276800 by upage address range (12800MB), Pages limited to 134201344 by remapped phys mem (524224MB)
+SMP: too many CPUs, CPU 0 disabled
+SMP: CPU 0 found 1 CPU(s)
+enabled interrupts: 1 2 4
+icode startup
+icode: open /motd
+FS is running
+FS can do I/O
+Device 1 presence: 1
+superblock is good
+icode: read /motd
+Writing MOTD
+This is /motd, the message of the day.
+
+Welcome to the JOS kernel, now with a file system!
+
+icode: close /motd
+icode: spawn /sbin/init
+icode: exiting
+init: running
+init: data seems okay
+init: bss seems okay
+init: args: 'init' 'initarg1' 'initarg2'
+init: running sh
+init: starting sh
+init waiting
+$ 
