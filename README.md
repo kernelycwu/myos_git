@@ -1,5 +1,4 @@
-The code is ugly. It is rather dirty, but it works.
-I created a Unix-like toy operating system based on my learning objectives.
+The code is ugly. It is rather dirty, but it works. I created a Unix-like toy operating system based on my learning objectives.
 
 1.I created a basic kernel with the following kernel features。
 bootloader
