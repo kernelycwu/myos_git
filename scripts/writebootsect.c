@@ -20,7 +20,7 @@ int main()
                 return -1;
         }
 
-	int fd2 = open("kernel_self", O_RDONLY);
+	int fd2 = open("kernel.elf", O_RDONLY);
 	if (fd2 < 0 ) {
 		perror("kernel");
 		return -1;

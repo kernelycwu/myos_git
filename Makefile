@@ -47,21 +47,25 @@ LIB_OBJ :=  $(patsubst %.S, %.o, \
 USER_BIN += hello \
 	world
 
-KERN_IMG := kernel.img
-DISK_IMG := xxx.img
+KERN_IMG   := kernel.img
+DISK_IMG   := xxx.img
 
-# Project Builds
-all: bootloadertest kernel 
-	objcopy -O binary  bootloadertest bootloader.bin
-	dd if=/dev/zero of=kernel.img bs=512 count=20480
+# Project Builds  
+all: bootloader kernel 
+	objcopy -O binary  bootloader bootloader.bin
+	dd if=/dev/zero of=$(KERN_IMG) bs=512 count=20480
 	gcc scripts/writebootsect.c -o scripts/writebootsect
 	./scripts/writebootsect
+	dd if=/dev/zero of=$(DISK_IMG) bs=4096  count=32768
+	gcc ./scripts/mkxxx.c -o ./scripts/mkxxx -g
+	./scripts/mkxxx $(DISK_IMG)  ./user/hello
 
-bootloadertest: $(BOOT_OBJ)
+
+bootloader: $(BOOT_OBJ)
 	$(LD) $(BOOTLDFLAGS)   -Ttext 0x7C00 $(BOOT_OBJ) -o $@
 
 kernel : $(KERN_OBJ) $(USER_BIN) 
-	$(LD) $(LDFLAGS)  -T kernel/$(ARCH)/kernel.ld $(KERN_OBJ) -b binary user/hello  -o kernel_self 
+	$(LD) $(LDFLAGS)  -T kernel/$(ARCH)/kernel.ld $(KERN_OBJ) -b binary user/hello  -o kernel.elf 
 
 $(USER_BIN):%:  $(LIB_OBJ) user/%.o 
 	$(LD)  $(LDFLAGS) -T user/$(ARCH)/user.ld -o user/$@  $^
@@ -105,5 +109,7 @@ clean:
 	-rm $(KERN_OBJ) $(USER_OBJ)  $(LIB_OBJ)
 	-rm $(KERN_OBJ:.o=.d) $(USER_OBJ:.o=.d)   $(LIB_OBJ:.o=.d) 
 	-rm  user/hello user/world boot/*.o 
+	-rm $(KERN_IMG) $(DISK_IMG)
+	-rm bootloader* kernel.elf
 
 .PHONY: all clean qemu gdb 

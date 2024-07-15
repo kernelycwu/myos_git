@@ -7,6 +7,9 @@
 #include <string.h>
 #include <assert.h>
 #include "mkxxx.h"
+
+//#define DEBUG	1
+
 #define BLKSIZE (4096)
 #define IMGSIZE (8*4096*4906)
 #define INOSIZE (10*4096)
@@ -80,7 +83,8 @@ walk_block(struct inode_t *p, unsigned int fileno, unsigned short **diskno, int 
 	return 0;	
 	
 }
-int walk_path(char *fname) 
+
+static int walk_path(char *fname) 
 {
 	struct inode_t *p = &ino_table[ROOT_INODE];
 	//assert(p->di_size % BLKSIZE  != 0);
@@ -110,7 +114,10 @@ int walk_path(char *fname)
 	}
 	return -1;
 }
-int alloc_file(struct direct_t **dir)
+
+
+static int 
+alloc_file(struct direct_t **dir)
 {
 	struct inode_t *p = &ino_table[ROOT_INODE];
 	assert(p->di_size % BLKSIZE  == 0);
@@ -153,7 +160,9 @@ int alloc_file(struct direct_t **dir)
 	}
 	p->di_size += BLKSIZE;
 	*diskno = bno;
+#ifdef DEBUG
 	printf("==============:%d",bno);
+#endif
 	set_bitmap(blk_bitmap, bno);
 	*dir = (struct direct_t *)(img_addr + bno * BLKSIZE);	
 	return 0;
@@ -163,10 +172,13 @@ int alloc_file(struct direct_t **dir)
 static int 
 write_file(char *fname, struct inode_t *pino) {
 
-	int fd;
-	int r;
+	int fd, r;
 	unsigned short *diskno;
-	int bno;
+	int bno, count = 0;
+	int i = 0, bn = 0;
+	unsigned int fileno, offset;
+	unsigned char buf[BLKSIZE];
+	void *p;
 
 	fd = open(fname, O_RDONLY);
 	if(fd < 0) {
@@ -175,11 +187,6 @@ write_file(char *fname, struct inode_t *pino) {
 	}
 
 
-	int count = 0;
-	int i = 0, bn = 0;
-	unsigned int fileno, offset;
-	unsigned char buf[BLKSIZE];
-	void *p;
 	while((count = read(fd, buf, BLKSIZE)) > 0) {
 		offset = pino->di_size % BLKSIZE;
 
@@ -221,7 +228,8 @@ write_file(char *fname, struct inode_t *pino) {
 	close(fd);
 	return 0;		
 }
-int 
+
+static int 
 create_file_image(char *name)
 {
 	int r;
@@ -254,7 +262,9 @@ create_file_image(char *name)
 	pinode->di_type = 0; // type 0 File
 	
 	//attach inode to direct
+#ifdef DEBUG
 	printf("root inode dir block:%d\n", ino);
+#endif
 	pdir->ino = ino;
 	strncpy(pdir->name, name, 14);
 	
@@ -264,7 +274,7 @@ create_file_image(char *name)
 	return 0;
 }
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	int fd;
 	struct super_t sb;
@@ -273,10 +283,12 @@ void main(int argc, char *argv[])
 	ssize_t count;
 	void *img_tmp;
 	int i = 0;
+
 	if(argc != 3 ) {
 		printf("parameter error");
 		exit(0);
 	}
+
 	fd = open(argv[1], O_RDWR);
 	if(fd < 0) {
 		perror("open image file error");
@@ -368,17 +380,23 @@ void main(int argc, char *argv[])
 
 	//7. update root inode bitmap
 	set_bitmap(ino_bitmap, 0);
-
+#ifdef DEBUG
 	printf("File system XXX image %s : Pass\n", argv[1]);
+#endif
 	//8. add a file in the disk image
 	create_file_image(argv[2]);	
 
+#ifdef DEBUG
 	printf("Create File %s in image file: Pass\n", argv[2]);	
+#endif
 	//9. finish
 	//msync(img_addr, IMGSIZE, MS_SYNC);
 	//munmap(img_addr, IMGSIZE);
 	close(fd);
+#ifdef DEBUG
 	printf("Make Image File OK\n");
+#endif
+	return 0;
 }
 	
 
