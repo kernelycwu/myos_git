@@ -1,15 +1,7 @@
 #include <kern/proc.h>
-
+#include <kern/syscalls.h>
+#include <syscallnr.h>
 extern struct proc *current;
-
-extern int sys_fork();
-extern int sys_exit();
-extern int sys_execve(const char *filename, char *const argv[],
-                  char *const envp[]);
-
-extern int sys_waitpid(int pid);
-extern int sys_create_vcpus();
-extern int sys_mmap_mem(void *addr, unsigned long length, void *gpa, int prot);
 
 static int sys_yield()
 {
@@ -22,7 +14,7 @@ static int sys_yield()
 
 static int sys_tprintf()
 {
-	print("i@@@@@@@@@@@@@@@@@@:%x\n",current->pid);
+	print("current process pid:[%x]\n",current->pid);
 	return 0;
 }
 
@@ -33,44 +25,51 @@ int do_syscall(unsigned int num, unsigned long p0, unsigned long p1,
 
 	switch(num) {
 
-		case 1:
+		case __OPEN:
 			return sys_open(p0, p1, p2);
-		case 2:
-			return sys_read(p0, p1, p2);
-		case 3:
-			return sys_write(p0, p1, p2);
-		case 4:
-			break;
 
-		case 6:
+		case __READ:
+			return sys_read(p0, p1, p2);
+
+		case __WRITE:
+			return sys_write(p0, p1, p2);
+
+		case __FORK:
 			return sys_fork();
 
-		case 7:
-			return sys_tprintf();
-
-		case 8:
+		case __YIELD:
 			return sys_yield();
 
-		case 9:
+		case __EXIT:
 			return sys_exit();
 
-		case 10: 
+		case __EXECVE: 
 			return sys_execve((const char *)p0, (char *const *)p1, (char *const *)p2);
 
-		case 11:	
-			return sys_opencons();
-		case 12:
+		case __WAITPID:
 			return sys_waitpid(p0);
-		case 13:
-			return sys_alloc_vm_mem(p0);
-		case 14:
+
+		case __LSEEK:
 			return sys_lseek((int)p0, (int)p1, (int)p2);
-		case 15:
+
+		case __TPRINTF:
+			return sys_tprintf();
+
+		case __OPENCONS:	
+			return sys_opencons();
+
+		case __ALLOC_VM_MEM:
+			return sys_alloc_vm_mem(p0);
+
+		case __CREATE_VCPU:
 			return sys_create_vcpu();
-		case 16:
+
+		case __RUN_VM:
 			return sys_run_vm();
-		case 17:
+
+		case __MMAP_MEM:
 			return sys_mmap_mem((void *)p0, p1, (void*)p2, (int)p3);
+
 		default:
 			break;
 	}

@@ -4,6 +4,7 @@
 #include <kern/mm.h>
 #include <kern/arch.h>
 #include <kern/file.h>
+
 #define PTE_COW		0x800	
 struct proc *procs = NULL;
 struct proc *current = NULL;
