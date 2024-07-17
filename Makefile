@@ -46,7 +46,7 @@ LIB_OBJ :=  $(patsubst %.S, %.o, \
 
 #Maket the user binary code  files ariable XXX_BIN
 #USER_BIN := hello 
-USER_BIN += init \
+USER_BIN += init vmexec\
 	world
 
 KERN_IMG   := kernel.img
@@ -61,6 +61,7 @@ all: bootloader kernel
 diskimg:
 	dd if=/dev/zero of=$(DISK_IMG) bs=4096  count=32768
 	gcc ./scripts/mkxxx.c -o ./scripts/mkxxx -g
+	cp ./user/world  world
 	./scripts/mkxxx $(DISK_IMG)  world
 
 
