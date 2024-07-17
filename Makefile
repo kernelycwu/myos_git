@@ -1,12 +1,14 @@
 TOP := .
 SRC := 
+
 CC := gcc  
 LD := ld
 
 ARCH := amd64
-#ARCH := x86
+#VMX  := host
+VMX  := guest
 LDFLAGS := 
-CFLAGS  := -g -nostdlib -fno-builtin -O0  -D$(ARCH) 
+CFLAGS  := -g -nostdlib -fno-builtin -O0  -D$(ARCH)  -D$(VMX)
 CFLAGS += -I include
 
 BOOTCFLAGS := -m32 -D$(ARCH) -fno-omit-frame-pointer -mno-red-zone -fno-stack-protector
@@ -44,7 +46,7 @@ LIB_OBJ :=  $(patsubst %.S, %.o, \
 
 #Maket the user binary code  files ariable XXX_BIN
 #USER_BIN := hello 
-USER_BIN += hello \
+USER_BIN += init \
 	world
 
 KERN_IMG   := kernel.img
@@ -56,16 +58,17 @@ all: bootloader kernel
 	dd if=/dev/zero of=$(KERN_IMG) bs=512 count=20480
 	gcc scripts/writebootsect.c -o scripts/writebootsect
 	./scripts/writebootsect
+diskimg:
 	dd if=/dev/zero of=$(DISK_IMG) bs=4096  count=32768
 	gcc ./scripts/mkxxx.c -o ./scripts/mkxxx -g
-	./scripts/mkxxx $(DISK_IMG)  ./user/hello
+	./scripts/mkxxx $(DISK_IMG)  world
 
 
 bootloader: $(BOOT_OBJ)
 	$(LD) $(BOOTLDFLAGS)   -Ttext 0x7C00 $(BOOT_OBJ) -o $@
 
 kernel : $(KERN_OBJ) $(USER_BIN) 
-	$(LD) $(LDFLAGS)  -T kernel/$(ARCH)/kernel.ld $(KERN_OBJ) -b binary user/hello  -o kernel.elf 
+	$(LD) $(LDFLAGS)  -T kernel/$(ARCH)/kernel.ld $(KERN_OBJ) -b binary user/init  -o kernel.elf 
 
 $(USER_BIN):%:  $(LIB_OBJ) user/%.o 
 	$(LD)  $(LDFLAGS) -T user/$(ARCH)/user.ld -o user/$@  $^
@@ -112,4 +115,4 @@ clean:
 	-rm $(KERN_IMG) $(DISK_IMG)
 	-rm bootloader* kernel.elf
 
-.PHONY: all clean qemu gdb 
+.PHONY: all clean qemu gdb diskimg

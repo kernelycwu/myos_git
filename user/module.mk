@@ -1,4 +1,4 @@
 USER_SRC += \
-        user/hello.c\
+        user/init.c\
 	user/world.c 
 

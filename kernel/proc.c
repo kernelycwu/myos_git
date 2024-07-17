@@ -291,16 +291,16 @@ create_proc(unsigned char *binary, unsigned int size)
 
 	return 0;
 }
-extern unsigned char _binary_user_hello_start[];
-extern unsigned char _binary_user_hello_end[];
-extern unsigned int _binary_user_hello_size;
+extern unsigned char _binary_user_init_start[];
+extern unsigned char _binary_user_init_end[];
+extern unsigned int _binary_user_init_size;
 
 //int 
 void
 spawn_proc()
 {
 //	create_proc(_binary_user_hello_start, _binary_user_hello_size);
-	create_proc(_binary_user_hello_start, _binary_user_hello_end - _binary_user_hello_start);
+	create_proc(_binary_user_init_start, _binary_user_init_end - _binary_user_init_start);
 //		extern unsigned char _binary____user_world_start[];
 //	extern unsigned int _binary____user_world_size;
 //	create_proc(_binary____user_world_start, _binary____user_world_size);

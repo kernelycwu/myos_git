@@ -8,41 +8,39 @@
 #include <kern/mm.h>
 #define BINARYSIZE	128
 extern struct proc *current;
-unsigned char binary[BINARYSIZE];
+
 
 int sys_execve(const char *filename, char *const argv[],
                   char *const envp[]) {
 	
 
+
 	struct file  pfile;
 	Elf_Ehdr *ehdr;
         Elf_Phdr *phdrs, *phdr;
         int i, j, r;
-
 	unsigned long start;
 	unsigned long memsz;
 	struct page *pp = 0;
 	unsigned long addr;
 
+	unsigned char binary[BINARYSIZE];
 	struct proc *p = current;
 	void *output = (void *)&binary;
 
-
-
-	print("###############%s\n",filename);
-
+	memset(&binary, 0, 128);
 	/* parse the image header */
 	file_open(filename, &pfile);
+
 	/* make clear of the user address space */
 	for(addr = UTEXT; addr < USTACKTOP; addr += 4096) {
 		remove_page(current->pgdir, addr);
 	}
 
+	file_read(&pfile, &binary, 128, 0);
+	//file_read(&pfile, output, BINARYSIZE, 0);
 
-	//file_read(&pfile, &binary, 128, 0);
-	file_read(&pfile, output, BINARYSIZE, 0);
-
-        ehdr = (Elf_Ehdr *) output;
+        ehdr = (Elf_Ehdr *)&binary;
         if (ehdr->e_ident[EI_MAG0] != ELFMAG0 ||
                         ehdr->e_ident[EI_MAG1] != ELFMAG1 ||
                         ehdr->e_ident[EI_MAG2] != ELFMAG2 ||
@@ -50,8 +48,6 @@ int sys_execve(const char *filename, char *const argv[],
 		print("Not support the binary format\n");
                 return -1;
         }
-
-
 
 	/* mmap the image file into the address space */
 	phdrs = (Elf_Phdr *)(output + ehdr->e_phoff);

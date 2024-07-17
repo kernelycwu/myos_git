@@ -64,16 +64,17 @@ int file_read(struct file *file, void *buf, unsigned int count, int offset)
 
                 coffset =  filepos  % BLKSIZE;
                 remain  =  BLKSIZE - coffset;
+
 		/* to read bytes is less than  remaining bytes */
                 mincount = MIN(remain, count);
-
-		if(*diskno != 0)  
+		if(*diskno != 0) { 
 			memcpy(buf, bread(*diskno) + coffset, mincount);
+		}
 		else
 			return -1;
 
 		file->offset += mincount;		
-		//print("%s", buf);	
+		//print("#%s", buf);	
 		buf += mincount;
 		//n += mincount;				
 	}

@@ -11,6 +11,7 @@ struct gdt_desc {
 	unsigned int base3;
 	unsigned int reserved_zero;
 };
+
 /* 16 bytes */
 struct idt_desc {
         unsigned short offset0  ;
@@ -21,11 +22,11 @@ struct idt_desc {
         unsigned int offset2 ;
 	unsigned int  reserved_ign;
 };
+
 struct idt_reg {
         unsigned short limit ;
         unsigned long base;
 }__attribute__((packed));
-
 
 struct tss_struct {
 	unsigned int reserved_ign;

@@ -117,7 +117,7 @@ walk_block(struct inode_t *p, unsigned int fileno, unsigned short **diskno, int 
 	unsigned short *blk = NULL;
 
 	if(fileno < 10) {
-		*diskno = &p->block[fileno];	
+		*diskno = &p->block[fileno];
 	} else if (fileno < 1024 * 2 + 10) {
 		level = (fileno - 10)/2048 + 10;
 		if (p->block[level] == 0) {

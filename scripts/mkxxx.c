@@ -24,6 +24,7 @@ void *img_addr;
 static unsigned int
 is_blkempty(unsigned int *bitmap, unsigned int no);
 static void set_bitmap(unsigned int *bitmap, unsigned int no);
+
 static int 
 get_free_no(unsigned int  *bitmap)
 {

@@ -145,15 +145,7 @@ static void vmxon(unsigned long addr)
 			:
 			: "m" (addr)
 			: "memory");
-
-/*
-#define ASM_VMX_VMXON_RAX         ".byte 0xf3, 0x0f, 0xc7, 0x30"
-asm volatile (ASM_VMX_VMXON_RAX
-: : "a"(&addr), "m"(addr)
-: "memory", "cc");
-*/
 }
-
 static void  vmptrld(unsigned long addr)
 {
 
@@ -162,26 +154,7 @@ static void  vmptrld(unsigned long addr)
 			: "m" (addr)
 			: "memory");
 
-/*
-#define ASM_VMX_VMPTRLD_RAX       ".byte 0x0f, 0xc7, 0x30"
-	unsigned char  error;
-
-	asm volatile (ASM_VMX_VMPTRLD_RAX "; setna %0"
-			: "=g"(error) : "a"(&addr), "m"(addr)
-			: "cc", "memory");
-*/
 }
-
-/*
-static unsigned char
-vmclear( unsigned long addr ) {
-        unsigned char error = 0;
-
-    asm volatile("clc; vmclear %1; setna %0"
-            : "=q"( error ) : "m" ( addr ) : "cc");
-    return error;
-}
-*/
 
 static void vmclear(unsigned long addr)
 {
@@ -201,12 +174,6 @@ static void vmwrite(unsigned long index, unsigned long value)
 		    );
 
 
-/*
-        unsigned char  error;
-#define ASM_VMX_VMWRITE_RAX_RDX   ".byte 0x0f, 0x79, 0xd0"
-        asm volatile (ASM_VMX_VMWRITE_RAX_RDX "; setna %0"
-                       : "=q"(error) : "a"(value), "d"(index) : "cc");
-*/
 }
 static unsigned long vmread(unsigned long index)
 {
@@ -217,14 +184,6 @@ static unsigned long vmread(unsigned long index)
 		     : "a" (index));
 	return value;
 
-/*
-#define ASM_VMX_VMREAD_RDX_RAX    ".byte 0x0f, 0x78, 0xd0"
-	   unsigned long value;
-
-        asm volatile (ASM_VMX_VMREAD_RDX_RAX
-                      : "=a"(value) : "d"(index) : "cc");
-        return value;
-*/
 }
 
 static void vmresume()
