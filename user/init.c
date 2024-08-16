@@ -29,9 +29,9 @@ void user_main()
         char buf[512];
         int pid;
         char ch;
-        int r;
-        int i = 0;
+        int r, i = 0;
         int fd;
+
         fd = opencons();
         while(1) {
                 write(fd, ">", 1);

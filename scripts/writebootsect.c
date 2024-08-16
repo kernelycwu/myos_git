@@ -8,17 +8,18 @@ int main()
 	int ret;
 	unsigned char buf[512];
 
+	int fd1 = open("kernel.img", O_WRONLY); 
+	 if (fd1 < 0 ) {
+                perror("open");
+                return -1;
+        }
+
 	int fd = open("bootloader.bin", O_RDONLY);
 	if (fd < 0 ) {
 		perror("bootloader");
 		return -1;
 	}
 
-	int fd1 = open("kernel.img", O_WRONLY); 
-	 if (fd1 < 0 ) {
-                perror("open");
-                return -1;
-        }
 
 	int fd2 = open("kernel.elf", O_RDONLY);
 	if (fd2 < 0 ) {
