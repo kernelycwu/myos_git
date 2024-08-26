@@ -112,8 +112,8 @@ gdb:
 clean:
 	-rm $(KERN_OBJ) $(USER_OBJ)  $(LIB_OBJ)
 	-rm $(KERN_OBJ:.o=.d) $(USER_OBJ:.o=.d)   $(LIB_OBJ:.o=.d) 
-	-rm  user/hello user/world boot/*.o 
 	-rm $(KERN_IMG) $(DISK_IMG)
-	-rm bootloader* kernel.elf
+	-rm  user/world boot/*.o 
+	-rm bootloader* kernel.elf world
 
 .PHONY: all clean qemu gdb diskimg

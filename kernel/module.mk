@@ -1,7 +1,7 @@
 include $(TOP)/kernel/${ARCH}/module.mk
 KERN_SRC += 	\
 	kernel/init.c \
-	kernel/lib.c  \
+	kernel/klib.c  \
 	kernel/console.c \
 	kernel/mm.c \
 	kernel/proc.c \
